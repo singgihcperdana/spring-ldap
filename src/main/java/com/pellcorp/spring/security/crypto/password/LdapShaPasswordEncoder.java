@@ -3,8 +3,8 @@ package com.pellcorp.spring.security.crypto.password;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pellcorp.spring.security.authentication.encoding.DigestType;
-import com.pellcorp.spring.security.authentication.encoding.DigestTypeUtils;
+import com.pellcorp.spring.security.digest.DigestType;
+import com.pellcorp.spring.security.digest.DigestTypeUtils;
 
 import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,15 +48,15 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
         }
         
         PasswordEncoder prefixPasswordEncoder = getPasswordEncoder(prefix);
-        String encPassNoLabel = encodedPassword.substring(prefix.getPrefixLength());
-        return prefixPasswordEncoder.matches(rawPassword, encPassNoLabel);
+        String encPassNoPrefix = encodedPassword.substring(prefix.getPrefixLength());
+        return prefixPasswordEncoder.matches(rawPassword, encPassNoPrefix);
     }
     
     private PasswordEncoder getPasswordEncoder(DigestType prefix) {
         synchronized (digestEncoderMap) {
             PasswordEncoder digestDecoder = digestEncoderMap.get(prefix.getPrefix());
             if (digestDecoder == null) {
-                digestDecoder = new ShaPasswordEncoder(digestType);
+                digestDecoder = new ShaPasswordEncoder(prefix);
                 digestEncoderMap.put(prefix.getPrefix(), digestDecoder);
             }
             return digestDecoder;

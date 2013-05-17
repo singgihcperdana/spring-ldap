@@ -3,7 +3,7 @@ package com.pellcorp.spring.security.crypto.password;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.pellcorp.spring.security.authentication.encoding.DigestType;
+import com.pellcorp.spring.security.digest.DigestType;
 
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
@@ -24,12 +24,6 @@ public final class ShaPasswordEncoder implements PasswordEncoder {
     private final BytesKeyGenerator saltGenerator;
     private MessageDigest messageDigest;
     
-    /**
-     * @throws NoSuchAlgorithmException
-     * 
-     *  @param algorithm
-     *  @param isSalted - whether we should include salt or not
-     */
     public ShaPasswordEncoder(DigestType digestType) {
         try {
             this.messageDigest = MessageDigest.getInstance(digestType.getAlgorithm());
@@ -59,7 +53,7 @@ public final class ShaPasswordEncoder implements PasswordEncoder {
 
     private String encode(CharSequence rawPassword, byte[] salt) {
         byte[] digest = digest(rawPassword, salt);
-        return new String(Hex.encode(digest));
+        return Utf8.decode(Base64.encode(digest));
     }
 
     private byte[] digest(CharSequence rawPassword, byte[] salt) {

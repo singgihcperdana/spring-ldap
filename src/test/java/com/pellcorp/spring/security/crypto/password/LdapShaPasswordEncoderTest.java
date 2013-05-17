@@ -1,6 +1,6 @@
 package com.pellcorp.spring.security.crypto.password;
 
-import com.pellcorp.spring.security.authentication.encoding.DigestType;
+import com.pellcorp.spring.security.digest.DigestType;
 
 import org.junit.Test;
 
@@ -85,6 +85,18 @@ public class LdapShaPasswordEncoderTest {
         String encPass = encoder.encode("Jason");
         assertTrue(encoder.matches("Jason", encPass));
         assertFalse(encoder.matches("JasonX", encPass));
+    }
+    
+    @Test
+    public void testShaAndSsha() {
+        LdapShaPasswordEncoder shaEncoder = new LdapShaPasswordEncoder("SHA");
+        LdapShaPasswordEncoder sshaEncoder = new LdapShaPasswordEncoder("SSHA");
+        String encPass = shaEncoder.encode("Jason");
+        
+        assertTrue(sshaEncoder.matches("Jason", encPass));
+        assertTrue(shaEncoder.matches("Jason", encPass));
+        assertFalse(sshaEncoder.matches("JasonX", encPass));
+        assertFalse(shaEncoder.matches("JasonX", encPass));
     }
     
     @Test

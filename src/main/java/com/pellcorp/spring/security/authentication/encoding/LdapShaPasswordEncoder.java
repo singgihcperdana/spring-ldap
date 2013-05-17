@@ -3,6 +3,9 @@ package com.pellcorp.spring.security.authentication.encoding;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.pellcorp.spring.security.digest.DigestType;
+import com.pellcorp.spring.security.digest.DigestTypeUtils;
+
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 public class LdapShaPasswordEncoder implements PasswordEncoder {

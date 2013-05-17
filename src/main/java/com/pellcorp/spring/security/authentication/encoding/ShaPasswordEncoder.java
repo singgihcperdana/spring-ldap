@@ -1,5 +1,7 @@
 package com.pellcorp.spring.security.authentication.encoding;
 
+import com.pellcorp.spring.security.digest.DigestType;
+
 import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 
 public class ShaPasswordEncoder extends MessageDigestPasswordEncoder {

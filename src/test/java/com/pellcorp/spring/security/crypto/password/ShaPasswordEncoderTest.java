@@ -1,6 +1,6 @@
 package com.pellcorp.spring.security.crypto.password;
 
-import com.pellcorp.spring.security.authentication.encoding.DigestType;
+import com.pellcorp.spring.security.digest.DigestType;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.pellcorp.spring.security.authentication.encoding;
+package com.pellcorp.spring.security.digest;
 
 import org.apache.commons.lang.StringUtils;
 
