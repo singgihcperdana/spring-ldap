@@ -10,13 +10,14 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     private final DigestType digestType;
     private final PasswordEncoder digestEncoder;
     
-    public LdapShaPasswordEncoder(final DigestType digestType) {
+    public LdapShaPasswordEncoder(final String digest) {
+        this.digestType = DigestType.valueOf(digest);
+        
         if (digestType != DigestType.PLAIN) {
-            digestEncoder = new MessageDigestPasswordEncoder(digestType.getDigestType(), true);
+            digestEncoder = new MessageDigestPasswordEncoder(digestType.getAlgorithm(), true);
         } else {
             digestEncoder = null;
         }
-        this.digestType = digestType;
     }
     
     @Override

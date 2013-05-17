@@ -10,19 +10,19 @@ public enum DigestType {
         return name().startsWith("SSHA");
     }
  
-    public String getDigestType() {
-        if (isSalted()) {
-            return name().substring(1);
-        } else {
-            return name();
-        }
-    }
-    
     public String getPrefix() {
         return "{" + name() + "}";
     }
     
     public int getPrefixLength() {
         return getPrefix().length();
+    }
+    
+    public String getAlgorithm() {
+        if (name().endsWith("SHA256")) {
+            return "SHA-256";
+        } else {
+            return "SHA";
+        }
     }
 }
