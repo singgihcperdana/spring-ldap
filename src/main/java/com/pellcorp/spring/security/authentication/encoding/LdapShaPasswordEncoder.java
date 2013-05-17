@@ -1,4 +1,4 @@
-package com.pellcorp.spring.ldap;
+package com.pellcorp.spring.security.authentication.encoding;
 
 import java.security.MessageDigest;
 

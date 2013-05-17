@@ -1,4 +1,4 @@
-package com.pellcorp.spring.ldap;
+package com.pellcorp.spring.security.authentication.encoding;
 
 /**
  * A digest type which starts with SSHA -is the salted variant

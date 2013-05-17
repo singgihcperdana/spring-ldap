@@ -2,7 +2,7 @@
  * Modified to allow use with ldap connection pooling
  */
 
-package com.pellcorp.spring.ldap;
+package com.pellcorp.spring.ldap.search;
 
 import javax.naming.directory.SearchControls;
 
