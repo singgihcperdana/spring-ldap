@@ -4,7 +4,19 @@ package com.pellcorp.spring.security.authentication.encoding;
  * A digest type which starts with SSHA -is the salted variant
  */
 public enum DigestType {
-    SHA, SSHA, SHA256, SSHA256, PLAIN;
+    SHA("SHA"), 
+    SSHA("SHA"), 
+    SHA256("SHA-256"), 
+    SSHA256("SHA-256"), 
+    SHA512("SHA-512"), 
+    SSHA512("SHA-512"), 
+    PLAIN("");
+    
+    private final String algorithm;
+    
+    private DigestType(String algorithm) {
+        this.algorithm = algorithm;
+    }
     
     public boolean isSalted() {
         return name().startsWith("SSHA");
@@ -19,10 +31,6 @@ public enum DigestType {
     }
     
     public String getAlgorithm() {
-        if (name().endsWith("SHA256")) {
-            return "SHA-256";
-        } else {
-            return "SHA";
-        }
+        return algorithm;
     }
 }

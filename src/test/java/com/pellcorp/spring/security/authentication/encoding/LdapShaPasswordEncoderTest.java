@@ -9,6 +9,22 @@ import static org.junit.Assert.*;
 
 public class LdapShaPasswordEncoderTest {
     @Test
+    public void testSsha512() {
+        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SSHA512");
+        String encPass = encoder.encodePassword("Jason", "jason");
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jason"));
+        assertFalse(encoder.isPasswordValid(encPass, "Jason", "jasonX"));
+    }
+    
+    @Test
+    public void testSha512() {
+        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SHA512");
+        String encPass = encoder.encodePassword("Jason", "jason");
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jason"));
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jasonX"));
+    }
+    
+    @Test
     public void testSsha256() {
         LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SSHA256");
         String encPass = encoder.encodePassword("Jason", "jason");
