@@ -6,11 +6,10 @@ import org.apache.commons.lang.StringUtils;
  * A digest type which starts with SSHA -is the salted variant
  */
 public class DigestType {
-    public static final DigestType PLAIN = new DigestType("PLAIN");
-    
-    public static final String PLAIN_PREFIX = "PLAIN";
-    public static final String SALTED_SHA_PREFIX = "SSHA";
-    public static final String SHA_PREFIX = "SHA";
+    private static final String PLAIN_PREFIX = "PLAIN";
+    private static final String SALTED_SHA_PREFIX = "SSHA";
+    private static final String SHA_PREFIX = "SHA";
+    static final DigestType PLAIN = new DigestType(PLAIN_PREFIX);
     
     private final String algorithm;
     private final String prefix;
