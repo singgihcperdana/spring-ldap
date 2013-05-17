@@ -3,7 +3,7 @@ package com.pellcorp.spring.security.authentication.encoding;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A digest type which starts with SSHA -is the salted variant
+ * Supports all SHA and SSHA variants that the underlying JDK supports
  */
 public class DigestType {
     private static final String PLAIN_PREFIX = "PLAIN";
@@ -15,13 +15,26 @@ public class DigestType {
     private final String prefix;
     private boolean isSalted;
     
+    /**
+     * The digestType will be what is used as the LDAP { prefix }, you can
+     * pass this as:
+     * 
+     * SHA
+     * SSHA
+     * SHA-256
+     * SHA256
+     * SSHA-256
+     * SSHA256
+     * 
+     * And so on
+     */
     public DigestType(String digestType) {
         this.prefix = digestType;
         
         if (digestType.startsWith(SALTED_SHA_PREFIX)) {
             String suffix = digestType.substring(SALTED_SHA_PREFIX.length());
             if (suffix.length() > 0) {
-                this.algorithm =  SHA_PREFIX + "-" + suffix;
+                this.algorithm =  SHA_PREFIX + getSuffix(suffix);
             } else {
                 this.algorithm = SHA_PREFIX;
             }
@@ -29,7 +42,8 @@ public class DigestType {
         } else if (digestType.startsWith(SHA_PREFIX)) {
             String suffix = digestType.substring(SHA_PREFIX.length());
             if (suffix.length() > 0) {
-                this.algorithm = SHA_PREFIX + "-" + suffix;
+                
+                this.algorithm = SHA_PREFIX + getSuffix(suffix);
             } else {
                 this.algorithm = SHA_PREFIX;
             }
@@ -58,5 +72,13 @@ public class DigestType {
     
     public String getAlgorithm() {
         return algorithm;
+    }
+    
+    private String getSuffix(String suffix) {
+        if (suffix.startsWith("-")) {
+            return suffix;
+        } else {
+            return "-" + suffix;
+        }
     }
 }

@@ -41,6 +41,38 @@ public class LdapShaPasswordEncoderTest {
     }
     
     @Test
+    public void testSsha512Hyphenated() {
+        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SSHA-512");
+        String encPass = encoder.encodePassword("Jason", "jason");
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jason"));
+        assertFalse(encoder.isPasswordValid(encPass, "Jason", "jasonX"));
+    }
+    
+    @Test
+    public void testSha512Hyphenated() {
+        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SHA-512");
+        String encPass = encoder.encodePassword("Jason", "jason");
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jason"));
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jasonX"));
+    }
+    
+    @Test
+    public void testSsha256Hyphenated() {
+        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SSHA-256");
+        String encPass = encoder.encodePassword("Jason", "jason");
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jason"));
+        assertFalse(encoder.isPasswordValid(encPass, "Jason", "jasonX"));
+    }
+    
+    @Test
+    public void testSha256Hyphenated() {
+        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SHA-256");
+        String encPass = encoder.encodePassword("Jason", "jason");
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jason"));
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", "jasonX"));
+    }
+    
+    @Test
     public void testSsha() {
         LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SSHA");
         String encPass = encoder.encodePassword("Jason", "jason");
