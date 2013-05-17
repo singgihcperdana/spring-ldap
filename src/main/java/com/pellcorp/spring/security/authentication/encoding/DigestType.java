@@ -21,16 +21,16 @@ public class DigestType {
         if (digestType.startsWith(SALTED_SHA_PREFIX)) {
             String suffix = digestType.substring(SALTED_SHA_PREFIX.length());
             if (suffix.length() > 0) {
-                this.algorithm = "SHA-" + suffix;
+                this.algorithm =  SHA_PREFIX + "-" + suffix;
             } else {
-                this.algorithm = "SHA";
+                this.algorithm = SHA_PREFIX;
             }
         } else if (digestType.startsWith(SHA_PREFIX)) {
             String suffix = digestType.substring(SHA_PREFIX.length());
             if (suffix.length() > 0) {
-                this.algorithm = "SHA-" + suffix;
+                this.algorithm = SHA_PREFIX + "-" + suffix;
             } else {
-                this.algorithm = "SHA";
+                this.algorithm = SHA_PREFIX;
             }
         } else {
             this.algorithm = null;
