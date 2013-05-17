@@ -21,7 +21,6 @@ import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 public final class ShaPasswordEncoder implements PasswordEncoder {
     public static final BytesKeyGenerator NO_SALT_GENERATOR = new NoOpBytesKeyGenerator();
     
-    private final DigestType digestType;
     private final BytesKeyGenerator saltGenerator;
     private MessageDigest messageDigest;
     
@@ -31,17 +30,16 @@ public final class ShaPasswordEncoder implements PasswordEncoder {
      *  @param algorithm
      *  @param isSalted - whether we should include salt or not
      */
-    public ShaPasswordEncoder(String algorithm, boolean isSalted) {
+    public ShaPasswordEncoder(DigestType digestType) {
         try {
-            this.digestType = new DigestType(algorithm);
             this.messageDigest = MessageDigest.getInstance(digestType.getAlgorithm());
-            if (isSalted) {
+            if (digestType.isSalted()) {
                 this.saltGenerator = KeyGenerators.secureRandom();
             } else {
                 this.saltGenerator = NO_SALT_GENERATOR;
             }
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("No such algorithm [" + algorithm + "]");
+            throw new IllegalArgumentException("No such algorithm [" + digestType.getAlgorithm() + "]");
         }
     }
 
@@ -56,10 +54,6 @@ public final class ShaPasswordEncoder implements PasswordEncoder {
         int offset = digested.length - saltGenerator.getKeyLength();
         byte[] salt = subArray(digested, offset, digested.length);
         byte[] actual = digest(rawPassword, salt);
-        
-        System.out.println("Digested:[" + Utf8.decode(digested)+"]");
-        System.out.println("  Actual:[" + Utf8.decode(actual));
-        
         return matches(digested, actual);
     }
 

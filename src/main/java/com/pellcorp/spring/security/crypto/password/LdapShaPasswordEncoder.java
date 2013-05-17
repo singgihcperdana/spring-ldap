@@ -1,13 +1,17 @@
 package com.pellcorp.spring.security.crypto.password;
 
-import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.pellcorp.spring.security.authentication.encoding.DigestType;
+import com.pellcorp.spring.security.authentication.encoding.DigestTypeUtils;
 
-import org.springframework.security.crypto.keygen.KeyGenerators;
+import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class LdapShaPasswordEncoder implements PasswordEncoder {
+    private final Map<String, PasswordEncoder> digestEncoderMap = new HashMap<String, PasswordEncoder>();
+    
     private final DigestType digestType;
     private final PasswordEncoder digestEncoder;
     
@@ -15,7 +19,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
         this.digestType = new DigestType(algorithm);
         
         if (!digestType.isPlain()) {
-            digestEncoder = new ShaPasswordEncoder(digestType.getAlgorithm(), digestType.isSalted());
+            digestEncoder = getPasswordEncoder(digestType);
         } else {
             digestEncoder = null;
         }
@@ -36,28 +40,26 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             return false;
         }
         
-        DigestType prefix = extractPrefix((String) encodedPassword);
+        DigestType prefix = DigestTypeUtils.extractPrefix((String) encodedPassword);
 
         // because there is no encoding of the password when it's plain
         if (prefix.isPlain()) {
             return encodedPassword.equals(rawPassword);
         }
         
+        PasswordEncoder prefixPasswordEncoder = getPasswordEncoder(prefix);
         String encPassNoLabel = encodedPassword.substring(prefix.getPrefixLength());
-        return digestEncoder.matches(rawPassword, encPassNoLabel);
+        return prefixPasswordEncoder.matches(rawPassword, encPassNoLabel);
     }
     
-    private DigestType extractPrefix(String encPass) {
-        if (encPass == null || !encPass.startsWith("{")) {
-            return DigestType.PLAIN;
+    private PasswordEncoder getPasswordEncoder(DigestType prefix) {
+        synchronized (digestEncoderMap) {
+            PasswordEncoder digestDecoder = digestEncoderMap.get(prefix.getPrefix());
+            if (digestDecoder == null) {
+                digestDecoder = new ShaPasswordEncoder(digestType);
+                digestEncoderMap.put(prefix.getPrefix(), digestDecoder);
+            }
+            return digestDecoder;
         }
-
-        int secondBrace = encPass.lastIndexOf('}');
-
-        if (secondBrace < 0) {
-            throw new IllegalArgumentException("Couldn't find closing brace for SHA prefix");
-        }
-
-        return new DigestType(encPass.substring(1, secondBrace));
     }
 }
