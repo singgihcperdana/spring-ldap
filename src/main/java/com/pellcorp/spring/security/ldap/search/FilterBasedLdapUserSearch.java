@@ -1,5 +1,8 @@
 /**
  * Modified to allow use with ldap connection pooling
+Due to refusal of spring-security team to make the necessary changes
+
+https://jira.springsource.org/browse/SEC-1817
  */
 
 package com.pellcorp.spring.security.ldap.search;
