@@ -33,20 +33,11 @@ public class DigestType {
         
         if (digestType.startsWith(SALTED_SHA_PREFIX)) {
             String suffix = digestType.substring(SALTED_SHA_PREFIX.length());
-            if (suffix.length() > 0) {
-                this.algorithm =  SHA_PREFIX + getSuffix(suffix);
-            } else {
-                this.algorithm = SHA_PREFIX;
-            }
+            this.algorithm =  SHA_PREFIX + getSuffix(suffix);
             this.isSalted = true;
         } else if (digestType.startsWith(SHA_PREFIX)) {
             String suffix = digestType.substring(SHA_PREFIX.length());
-            if (suffix.length() > 0) {
-                
-                this.algorithm = SHA_PREFIX + getSuffix(suffix);
-            } else {
-                this.algorithm = SHA_PREFIX;
-            }
+            this.algorithm = SHA_PREFIX + getSuffix(suffix);
             this.isSalted = false;
         } else {
             this.algorithm = null;
@@ -75,7 +66,9 @@ public class DigestType {
     }
     
     private String getSuffix(String suffix) {
-        if (suffix.startsWith("-")) {
+        if (suffix.length() == 0) {
+            return "";
+        } else if (suffix.startsWith("-")) {
             return suffix;
         } else {
             return "-" + suffix;
