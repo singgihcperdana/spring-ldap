@@ -9,7 +9,7 @@ public class DigestType {
     private static final String PLAIN_PREFIX = "PLAIN";
     private static final String SALTED_SHA_PREFIX = "SSHA";
     private static final String SHA_PREFIX = "SHA";
-    static final DigestType PLAIN = new DigestType(PLAIN_PREFIX);
+    public static final DigestType PLAIN = new DigestType(PLAIN_PREFIX);
     
     private final String algorithm;
     private final String prefix;
