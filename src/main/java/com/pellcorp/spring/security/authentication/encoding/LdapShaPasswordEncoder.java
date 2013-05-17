@@ -1,29 +1,31 @@
 package com.pellcorp.spring.security.authentication.encoding;
 
-import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.util.Assert;
 
 public class LdapShaPasswordEncoder implements PasswordEncoder {
+    private final Map<String, PasswordEncoder> digestEncoderMap = new HashMap<String, PasswordEncoder>();
+    
     private final DigestType digestType;
-    private final PasswordEncoder digestEncoder;
+    private final PasswordEncoder defaultPasswordEncoder;
     
     public LdapShaPasswordEncoder(final String algorithm) {
         this.digestType = new DigestType(algorithm);
         
         if (!digestType.isPlain()) {
-            digestEncoder = new MessageDigestPasswordEncoder(digestType.getAlgorithm(), true);
+            defaultPasswordEncoder = getPasswordEncoder(digestType);
         } else {
-            digestEncoder = null;
+            defaultPasswordEncoder = null;
         }
     }
     
     @Override
     public String encodePassword(String rawPass, Object salt) {
         if (!digestType.isPlain()) {
-            return digestType.getPrefix() + digestEncoder.encodePassword(rawPass, getSalt(salt));
+            return digestType.getPrefix() + defaultPasswordEncoder.encodePassword(rawPass, getSalt(salt, digestType));
         } else {
             return rawPass;
         }
@@ -38,15 +40,28 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             return encPass.equals(rawPass);
         }
         
+        PasswordEncoder prefixPasswordEncoder = getPasswordEncoder(prefix);
+        
         String encPassNoLabel = encPass.substring(prefix.getPrefixLength());
-        return digestEncoder.isPasswordValid(encPassNoLabel, rawPass, getSalt(salt));
+        return prefixPasswordEncoder.isPasswordValid(encPassNoLabel, rawPass, getSalt(salt, prefix));
     }
     
-    private Object getSalt(Object salt) {
+    private Object getSalt(Object salt, DigestType digestType) {
         if(digestType.isSalted()) {
             return salt;
         } else {
             return null;
+        }
+    }
+    
+    private PasswordEncoder getPasswordEncoder(DigestType prefix) {
+        synchronized (digestEncoderMap) {
+            PasswordEncoder digestDecoder = digestEncoderMap.get(prefix.getPrefix());
+            if (digestDecoder == null) {
+                digestDecoder = new MessageDigestPasswordEncoder(prefix.getAlgorithm(), true);
+                digestEncoderMap.put(prefix.getPrefix(), digestDecoder);
+            }
+            return digestDecoder;
         }
     }
     

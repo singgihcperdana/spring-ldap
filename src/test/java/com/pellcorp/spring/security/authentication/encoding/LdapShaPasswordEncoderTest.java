@@ -81,6 +81,18 @@ public class LdapShaPasswordEncoderTest {
     }
     
     @Test
+    public void testShaAndSsha() {
+        LdapShaPasswordEncoder shaEncoder = new LdapShaPasswordEncoder("SHA");
+        LdapShaPasswordEncoder sshaEncoder = new LdapShaPasswordEncoder("SSHA");
+        String encPass = shaEncoder.encodePassword("Jason", "jason");
+        
+        // we are using a SSHA encoder, but the password valid should actually look at the contents
+        // of the encoded password and use the appropriate encoder instead.
+        assertTrue(sshaEncoder.isPasswordValid(encPass, "Jason", "jason"));
+        assertTrue(sshaEncoder.isPasswordValid(encPass, "Jason", "jasonX"));
+    }
+    
+    @Test
     public void testSha() {
         LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SHA");
         String encPass = encoder.encodePassword("Jason", "jason");

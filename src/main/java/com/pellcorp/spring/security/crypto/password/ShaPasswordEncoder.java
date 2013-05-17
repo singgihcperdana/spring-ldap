@@ -55,7 +55,12 @@ public final class ShaPasswordEncoder implements PasswordEncoder {
         byte[] digested = Base64.decode(Utf8.encode(encodedPassword));
         int offset = digested.length - saltGenerator.getKeyLength();
         byte[] salt = subArray(digested, offset, digested.length);
-        return matches(digested, digest(rawPassword, salt));
+        byte[] actual = digest(rawPassword, salt);
+        
+        System.out.println("Digested:[" + Utf8.decode(digested)+"]");
+        System.out.println("  Actual:[" + Utf8.decode(actual));
+        
+        return matches(digested, actual);
     }
 
     private String encode(CharSequence rawPassword, byte[] salt) {
