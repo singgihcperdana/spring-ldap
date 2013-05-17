@@ -17,6 +17,14 @@ public class LdapShaPasswordEncoderTest {
     }
     
     @Test
+    public void testSha() {
+        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder(DigestType.SHA);
+        String encPass = encoder.encodePassword("Jason", null);
+        assertTrue(encoder.isPasswordValid(encPass, "Jason", null));
+        //assertFalse(encoder.isPasswordValid(encPass, "Jason", "jasonX"));
+    }
+    
+    @Test
     public void testPlain() {
         LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder(DigestType.PLAIN);
         String encPass = encoder.encodePassword("Jason", "jason");

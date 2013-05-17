@@ -22,7 +22,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     @Override
     public String encodePassword(String rawPass, Object salt) {
         if (digestType != DigestType.PLAIN) {
-            return digestType.getPrefix() + digestEncoder.encodePassword(rawPass, salt);
+            return digestType.getPrefix() + digestEncoder.encodePassword(rawPass, getSalt(salt));
         } else {
             return rawPass;
         }
@@ -37,12 +37,16 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             return encPass.equals(rawPass);
         }
         
-        String encPassNoLabel = encPass;
-        if (prefix.isSalted()) {
-            int startOfHash = prefix.getPrefixLength();
-            encPassNoLabel = encPass.substring(startOfHash);
+        String encPassNoLabel = encPass.substring(prefix.getPrefixLength());
+        return digestEncoder.isPasswordValid(encPassNoLabel, rawPass, getSalt(salt));
+    }
+    
+    private Object getSalt(Object salt) {
+        if(digestType.isSalted()) {
+            return salt;
+        } else {
+            return null;
         }
-        return digestEncoder.isPasswordValid(encPassNoLabel, rawPass, salt);
     }
     
     private DigestType extractPrefix(String encPass) {
