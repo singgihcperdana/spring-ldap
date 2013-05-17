@@ -14,6 +14,7 @@ public class DigestType {
     
     private final String algorithm;
     private final String prefix;
+    private boolean isSalted;
     
     public DigestType(String digestType) {
         this.prefix = digestType;
@@ -21,28 +22,31 @@ public class DigestType {
         if (digestType.startsWith(SALTED_SHA_PREFIX)) {
             String suffix = digestType.substring(SALTED_SHA_PREFIX.length());
             if (suffix.length() > 0) {
-                this.algorithm = "SHA-" + suffix;
+                this.algorithm =  SHA_PREFIX + "-" + suffix;
             } else {
-                this.algorithm = "SHA";
+                this.algorithm = SHA_PREFIX;
             }
+            this.isSalted = true;
         } else if (digestType.startsWith(SHA_PREFIX)) {
             String suffix = digestType.substring(SHA_PREFIX.length());
             if (suffix.length() > 0) {
-                this.algorithm = "SHA-" + suffix;
+                this.algorithm = SHA_PREFIX + "-" + suffix;
             } else {
-                this.algorithm = "SHA";
+                this.algorithm = SHA_PREFIX;
             }
+            this.isSalted = false;
         } else {
             this.algorithm = null;
+            this.isSalted = false;
         }
     }
     
     public boolean isPlain() {
-        return prefix.equals(PLAIN_PREFIX);
+        return algorithm == null;
     }
     
     public boolean isSalted() {
-        return prefix.toUpperCase().startsWith(SALTED_SHA_PREFIX);
+        return isSalted;
     }
  
     public String getPrefix() {
