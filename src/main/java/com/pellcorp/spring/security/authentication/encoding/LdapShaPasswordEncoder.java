@@ -50,7 +50,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     }
     
     private DigestType extractPrefix(String encPass) {
-        if (!encPass.startsWith("{")) {
+        if (encPass == null || !encPass.startsWith("{")) {
             return DigestType.PLAIN;
         }
 
