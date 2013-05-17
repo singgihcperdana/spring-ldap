@@ -1,29 +1,52 @@
 package com.pellcorp.spring.security.authentication.encoding;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * A digest type which starts with SSHA -is the salted variant
  */
-public enum DigestType {
-    SHA("SHA"), 
-    SSHA("SHA"), 
-    SHA256("SHA-256"), 
-    SSHA256("SHA-256"), 
-    SHA512("SHA-512"), 
-    SSHA512("SHA-512"), 
-    PLAIN("");
+public class DigestType {
+    public static final DigestType PLAIN = new DigestType("PLAIN");
+    
+    public static final String PLAIN_PREFIX = "PLAIN";
+    public static final String SALTED_SHA_PREFIX = "SSHA";
+    public static final String SHA_PREFIX = "SHA";
     
     private final String algorithm;
+    private final String prefix;
     
-    private DigestType(String algorithm) {
-        this.algorithm = algorithm;
+    public DigestType(String digestType) {
+        this.prefix = digestType;
+        
+        if (digestType.startsWith(SALTED_SHA_PREFIX)) {
+            String suffix = digestType.substring(SALTED_SHA_PREFIX.length());
+            if (suffix.length() > 0) {
+                this.algorithm = "SHA-" + suffix;
+            } else {
+                this.algorithm = "SHA";
+            }
+        } else if (digestType.startsWith(SHA_PREFIX)) {
+            String suffix = digestType.substring(SHA_PREFIX.length());
+            if (suffix.length() > 0) {
+                this.algorithm = "SHA-" + suffix;
+            } else {
+                this.algorithm = "SHA";
+            }
+        } else {
+            this.algorithm = null;
+        }
+    }
+    
+    public boolean isPlain() {
+        return prefix.equals(PLAIN_PREFIX);
     }
     
     public boolean isSalted() {
-        return name().startsWith("SSHA");
+        return prefix.toUpperCase().startsWith(SALTED_SHA_PREFIX);
     }
  
     public String getPrefix() {
-        return "{" + name() + "}";
+        return "{" + prefix + "}";
     }
     
     public int getPrefixLength() {

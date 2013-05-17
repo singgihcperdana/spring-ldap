@@ -10,10 +10,10 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     private final DigestType digestType;
     private final PasswordEncoder digestEncoder;
     
-    public LdapShaPasswordEncoder(final String digest) {
-        this.digestType = DigestType.valueOf(digest);
+    public LdapShaPasswordEncoder(final String algorithm) {
+        this.digestType = new DigestType(algorithm);
         
-        if (digestType != DigestType.PLAIN) {
+        if (!digestType.isPlain()) {
             digestEncoder = new MessageDigestPasswordEncoder(digestType.getAlgorithm(), true);
         } else {
             digestEncoder = null;
@@ -22,7 +22,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     
     @Override
     public String encodePassword(String rawPass, Object salt) {
-        if (digestType != DigestType.PLAIN) {
+        if (!digestType.isPlain()) {
             return digestType.getPrefix() + digestEncoder.encodePassword(rawPass, getSalt(salt));
         } else {
             return rawPass;
@@ -34,7 +34,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
         DigestType prefix = extractPrefix(encPass);
 
         // because there is no encoding of the password when it's plain
-        if (prefix == DigestType.PLAIN) {
+        if (prefix.isPlain()) {
             return encPass.equals(rawPass);
         }
         
@@ -61,6 +61,6 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             throw new IllegalArgumentException("Couldn't find closing brace for SHA prefix");
         }
 
-        return DigestType.valueOf(encPass.substring(1, secondBrace));
+        return new DigestType(encPass.substring(1, secondBrace));
     }
 }
