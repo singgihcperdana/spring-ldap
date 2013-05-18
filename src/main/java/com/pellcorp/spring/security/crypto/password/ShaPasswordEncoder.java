@@ -50,8 +50,7 @@ public final class ShaPasswordEncoder implements PasswordEncoder {
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
         byte[] digested = Base64.decode(Utf8.encode(encodedPassword));
-        int offset = digested.length - saltGenerator.getKeyLength();
-        byte[] salt = subArray(digested, offset, digested.length);
+        byte[] salt = subArray(digested, digester.getLength(), digested.length);
         byte[] actual = digest(rawPassword, salt);
         
         logger.debug("Digested Length: {}, Actual Length: {}", digested.length, actual.length);
