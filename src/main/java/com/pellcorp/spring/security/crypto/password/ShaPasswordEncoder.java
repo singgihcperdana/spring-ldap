@@ -5,8 +5,6 @@ import java.security.NoSuchAlgorithmException;
 
 import com.pellcorp.spring.security.digest.Digester;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
@@ -20,8 +18,6 @@ import static org.springframework.security.crypto.util.EncodingUtils.subArray;
  * The digest algorithm is invoked on the concatenated bytes of the salt and password.
  */
 public final class ShaPasswordEncoder implements PasswordEncoder {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    
     public static final BytesKeyGenerator NO_SALT_GENERATOR = new NoOpBytesKeyGenerator();
     public static final int DEFAULT_SALT_LENGTH = 8;
     
@@ -52,8 +48,6 @@ public final class ShaPasswordEncoder implements PasswordEncoder {
         byte[] digested = Base64.decode(Utf8.encode(encodedPassword));
         byte[] salt = subArray(digested, digester.getLength(), digested.length);
         byte[] actual = digest(rawPassword, salt);
-        
-        logger.debug("Digested Length: {}, Actual Length: {}", digested.length, actual.length);
         return MessageDigest.isEqual(digested, actual);
     }
 

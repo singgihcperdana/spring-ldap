@@ -1,10 +1,13 @@
 package com.pellcorp.spring.security.crypto.password;
 
-import com.pellcorp.spring.security.digest.Digester;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class LdapShaPasswordEncoderTest {
     @Test
@@ -13,6 +16,20 @@ public class LdapShaPasswordEncoderTest {
         String encPass = encoder.encode("Jason");
         assertTrue(encoder.matches("Jason", encPass));
         assertFalse(encoder.matches("JasonX", encPass));
+    }
+    
+    @Test
+    public void testSsha512Repeated() {
+        LdapShaPasswordEncoder encoder = new LdapShaPasswordEncoder("SSHA512");
+        
+        List<String> encPassList = new ArrayList<String>();
+        for (int i=0; i<1000; i++) {
+            String encPass = encoder.encode("Jason");
+            assertFalse(encPassList.contains(encPass));
+            encPassList.add(encPass);
+        }
+        
+        assertEquals(1000, encPassList.size());
     }
     
     @Test
