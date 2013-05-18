@@ -25,6 +25,8 @@ public class LdapShaPasswordEncoderTest {
         List<String> encPassList = new ArrayList<String>();
         for (int i=0; i<1000; i++) {
             String encPass = encoder.encode("Jason");
+            assertTrue(encoder.matches("Jason", encPass));
+            assertFalse(encoder.matches("JasonX", encPass));
             assertFalse(encPassList.contains(encPass));
             encPassList.add(encPass);
         }
