@@ -3,10 +3,11 @@ package com.pellcorp.spring.security.crypto.password;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.pellcorp.spring.security.digest.DigestType;
+import com.pellcorp.spring.security.digest.Digester;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.codec.Base64;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
@@ -19,27 +20,31 @@ import static org.springframework.security.crypto.util.EncodingUtils.subArray;
  * The digest algorithm is invoked on the concatenated bytes of the salt and password.
  */
 public final class ShaPasswordEncoder implements PasswordEncoder {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    
     public static final BytesKeyGenerator NO_SALT_GENERATOR = new NoOpBytesKeyGenerator();
+    public static final int DEFAULT_SALT_LENGTH = 8;
     
     private final BytesKeyGenerator saltGenerator;
-    private MessageDigest messageDigest;
+    private final Digester digester;
     
-    public ShaPasswordEncoder(DigestType digestType) {
-        try {
-            this.messageDigest = MessageDigest.getInstance(digestType.getAlgorithm());
-            if (digestType.isSalted()) {
-                this.saltGenerator = KeyGenerators.secureRandom();
-            } else {
-                this.saltGenerator = NO_SALT_GENERATOR;
-            }
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("No such algorithm [" + digestType.getAlgorithm() + "]");
+    public ShaPasswordEncoder(Digester digestType) {
+        this(digestType, DEFAULT_SALT_LENGTH);
+    }
+    
+    public ShaPasswordEncoder(Digester digester, int saltLength) {
+        this.digester = digester;
+        if (digester.isSalted()) {
+            this.saltGenerator = KeyGenerators.secureRandom(saltLength);
+        } else {
+            this.saltGenerator = NO_SALT_GENERATOR;
         }
     }
 
     @Override
     public String encode(CharSequence rawPassword) {
-        return encode(rawPassword, saltGenerator.generateKey());
+        byte[] digest = digest(rawPassword, saltGenerator.generateKey());
+        return Utf8.decode(Base64.encode(digest));
     }
 
     @Override
@@ -48,39 +53,14 @@ public final class ShaPasswordEncoder implements PasswordEncoder {
         int offset = digested.length - saltGenerator.getKeyLength();
         byte[] salt = subArray(digested, offset, digested.length);
         byte[] actual = digest(rawPassword, salt);
-        return matches(digested, actual);
-    }
-
-    private String encode(CharSequence rawPassword, byte[] salt) {
-        byte[] digest = digest(rawPassword, salt);
-        return Utf8.decode(Base64.encode(digest));
+        
+        logger.debug("Digested Length: {}, Actual Length: {}", digested.length, actual.length);
+        return MessageDigest.isEqual(digested, actual);
     }
 
     private byte[] digest(CharSequence rawPassword, byte[] salt) {
         byte[] hashAndSalt = concatenate(Utf8.encode(rawPassword), salt);
-        byte[] digest = digest(hashAndSalt);
+        byte[] digest = digester.digest(hashAndSalt);
         return concatenate(digest, salt);
     }
-
-    private byte[] digest(byte[] value) {
-        synchronized (messageDigest) {
-            return messageDigest.digest(value);
-        }
-    }
-    
-    /**
-     * Constant time comparison to prevent against timing attacks.
-     */
-    private boolean matches(byte[] expected, byte[] actual) {
-        if (expected.length != actual.length) {
-            return false;
-        }
-
-        int result = 0;
-        for (int i = 0; i < expected.length; i++) {
-            result |= expected[i] ^ actual[i];
-        }
-        return result == 0;
-    }
-
 }

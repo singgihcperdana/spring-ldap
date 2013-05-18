@@ -1,12 +1,12 @@
 package com.pellcorp.spring.security.digest;
 
-public final class DigestTypeUtils {
-    private DigestTypeUtils() {
+public final class DigesterUtils {
+    private DigesterUtils() {
     }
     
-    public static DigestType extractPrefix(String encPass) {
+    public static Digester extractPrefix(String encPass) {
         if (encPass == null || !encPass.startsWith("{")) {
-            return DigestType.PLAIN;
+            return Digester.PLAIN;
         }
 
         int secondBrace = encPass.lastIndexOf('}');
@@ -15,6 +15,6 @@ public final class DigestTypeUtils {
             throw new IllegalArgumentException("Couldn't find closing brace for SHA prefix");
         }
 
-        return new DigestType(encPass.substring(1, secondBrace));
+        return new Digester(encPass.substring(1, secondBrace));
     }
 }

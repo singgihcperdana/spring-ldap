@@ -1,19 +1,24 @@
 package com.pellcorp.spring.security.digest;
 
-import org.apache.commons.lang.StringUtils;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import org.springframework.security.crypto.codec.Utf8;
 
 /**
  * Supports all SHA and SSHA variants that the underlying JDK supports
  */
-public class DigestType {
+public class Digester {
     private static final String PLAIN_PREFIX = "PLAIN";
     private static final String SALTED_SHA_PREFIX = "SSHA";
     private static final String SHA_PREFIX = "SHA";
-    public static final DigestType PLAIN = new DigestType(PLAIN_PREFIX);
+    public static final Digester PLAIN = new Digester(PLAIN_PREFIX);
     
     private final String algorithm;
     private final String prefix;
     private boolean isSalted;
+    private final MessageDigest messageDigest;
+    private final int digestLength;
     
     /**
      * The digestType will be what is used as the LDAP { prefix }, you can
@@ -28,7 +33,7 @@ public class DigestType {
      * 
      * And so on
      */
-    public DigestType(String digestType) {
+    public Digester(String digestType) {
         this.prefix = digestType;
         
         if (digestType.startsWith(SALTED_SHA_PREFIX)) {
@@ -42,6 +47,18 @@ public class DigestType {
         } else {
             this.algorithm = null;
             this.isSalted = false;
+        }
+        
+        try {
+            if (this.algorithm != null) {
+                this.messageDigest = MessageDigest.getInstance(algorithm);
+                this.digestLength = digest(Utf8.encode("whocares")).length;
+            } else {
+                this.messageDigest = null;
+                this.digestLength = 0;
+            }
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException("No such algorithm [" + this.algorithm + "]");
         }
     }
     
@@ -63,6 +80,20 @@ public class DigestType {
     
     public String getAlgorithm() {
         return algorithm;
+    }
+    
+    public int getLength() {
+        return digestLength;
+    }
+    
+    public byte[] digest(byte[] value) {
+        if (messageDigest != null) {
+            synchronized (messageDigest) {
+                return messageDigest.digest(value);
+            }
+        } else {
+            return value;
+        }
     }
     
     private String getSuffix(String suffix) {

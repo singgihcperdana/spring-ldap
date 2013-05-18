@@ -3,22 +3,22 @@ package com.pellcorp.spring.security.authentication.encoding;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pellcorp.spring.security.digest.DigestType;
-import com.pellcorp.spring.security.digest.DigestTypeUtils;
+import com.pellcorp.spring.security.digest.Digester;
+import com.pellcorp.spring.security.digest.DigesterUtils;
 
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 public class LdapShaPasswordEncoder implements PasswordEncoder {
     private final Map<String, PasswordEncoder> digestEncoderMap = new HashMap<String, PasswordEncoder>();
     
-    private final DigestType digestType;
+    private final Digester digester;
     private final PasswordEncoder defaultPasswordEncoder;
     
     public LdapShaPasswordEncoder(final String algorithm) {
-        this.digestType = new DigestType(algorithm);
+        this.digester = new Digester(algorithm);
         
-        if (!digestType.isPlain()) {
-            defaultPasswordEncoder = getPasswordEncoder(digestType);
+        if (!digester.isPlain()) {
+            defaultPasswordEncoder = getPasswordEncoder(digester);
         } else {
             defaultPasswordEncoder = null;
         }
@@ -26,8 +26,8 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     
     @Override
     public String encodePassword(String rawPass, Object salt) {
-        if (!digestType.isPlain()) {
-            return digestType.getPrefix() + defaultPasswordEncoder.encodePassword(rawPass, salt);
+        if (!digester.isPlain()) {
+            return digester.getPrefix() + defaultPasswordEncoder.encodePassword(rawPass, salt);
         } else {
             return rawPass;
         }
@@ -39,7 +39,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             return false;
         }
         
-        DigestType prefix = DigestTypeUtils.extractPrefix(encPass);
+        Digester prefix = DigesterUtils.extractPrefix(encPass);
 
         // because there is no encoding of the password when it's plain
         if (prefix.isPlain()) {
@@ -52,7 +52,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
         return prefixPasswordEncoder.isPasswordValid(encPassNoLabel, rawPass, salt);
     }
     
-    private PasswordEncoder getPasswordEncoder(DigestType prefix) {
+    private PasswordEncoder getPasswordEncoder(Digester prefix) {
         synchronized (digestEncoderMap) {
             PasswordEncoder digestDecoder = digestEncoderMap.get(prefix.getPrefix());
             if (digestDecoder == null) {

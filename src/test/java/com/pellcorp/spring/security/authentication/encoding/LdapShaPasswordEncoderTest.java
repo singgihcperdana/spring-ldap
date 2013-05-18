@@ -1,7 +1,7 @@
 package com.pellcorp.spring.security.authentication.encoding;
 
 import com.pellcorp.spring.security.authentication.encoding.LdapShaPasswordEncoder;
-import com.pellcorp.spring.security.digest.DigestType;
+import com.pellcorp.spring.security.digest.Digester;
 
 import org.junit.Test;
 
