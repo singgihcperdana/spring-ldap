@@ -3,7 +3,6 @@ package com.pellcorp.spring.security.crypto.password;
 import com.pellcorp.spring.security.digest.Digester;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ShaPasswordEncoderTest extends Assert {
@@ -43,7 +42,6 @@ public class ShaPasswordEncoderTest extends Assert {
     }
     
     @Test
-    @Ignore
     public void testSha512WithDiffKeyLengths() throws Exception {
         ShaPasswordEncoder encoderKey8 = new ShaPasswordEncoder(new Digester("SSHA-512"), 8);
         ShaPasswordEncoder encoderKey6 = new ShaPasswordEncoder(new Digester("SSHA-512"), 6);
